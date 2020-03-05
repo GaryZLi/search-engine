@@ -1,0 +1,44 @@
+import os
+import json
+from functions import *
+from sys import getsizeof
+
+from timeit import timeit
+
+start = timeit()
+
+terms = {}
+document = {}
+docNum = 0
+
+with open("output.txt", "w") as output:
+    for directory in os.listdir('DEV'):
+        try:
+            print(directory)
+            directory = 'DEV/' + directory
+            for file in os.listdir(directory):
+                print(file)
+                document[docNum] = file
+                with open(directory + '/' + file, 'r') as file:
+                    for word in parse(json.loads(file.read())['content']):
+                        try:
+                            terms[word]
+                            try:
+                                terms[word][docNum] += 1
+                            except:
+                                terms[word][docNum] = 1
+                        except:
+                            terms[word] = {docNum: 1}
+                file.close()
+                docNum += 1
+        except NotADirectoryError:
+            print('not a directory')
+
+    output.write("This is the number of documents there are: " + str(docNum) + '\n')
+    output.write("This is the number of unique words there are: " + str(len(terms.keys())) + '\n')
+    output.write("This is the size of the index: " + str(getsizeof(terms) / 1000) + 'kb\n')
+
+
+end = timeit()
+
+print("total time:", end - start)
